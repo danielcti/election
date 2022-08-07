@@ -1,19 +1,18 @@
 import { ethers } from "hardhat";
 
+const candidates = ["John", "Jane", "Joe"];
+
 async function main() {
-  const startDate = new Date();
-  const endTimestamp = Math.floor(
-    startDate.setMinutes(startDate.getMinutes() + 2) / 1000
-  );
+  const NOW = new Date();
+  const startTime = Math.floor(NOW.setMinutes(NOW.getMinutes() + 5) / 1000);
+  const endTime = Math.floor(NOW.setMinutes(NOW.getMinutes() + 15) / 1000);
   const Election = await ethers.getContractFactory("Election");
-  const election = await Election.deploy(endTimestamp);
+  const election = await Election.deploy(startTime, endTime, candidates);
   await election.deployed();
 
   console.log("Election deployed to:", election.address);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
