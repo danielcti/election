@@ -12,39 +12,39 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { Candidate } from "../utils/types";
+import { Proposal } from "../utils/types";
 
-interface RegisterCandidateModalProps {
+interface RegisterProposalModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  addOrEditCandidate: (name: string) => Promise<void>;
-  editingCandidate: Candidate | undefined;
-  setEditingCandidate: (candidate: Candidate | undefined) => void;
+  addOrEditProposal: (name: string) => Promise<void>;
+  editingProposal: Proposal | undefined;
+  setEditingProposal: (proposal: Proposal | undefined) => void;
 }
 
-export const RegisterCandidateModal = ({
+export const RegisterProposalModal = ({
   isOpen,
   setIsOpen,
-  addOrEditCandidate,
-  editingCandidate,
-  setEditingCandidate,
-}: RegisterCandidateModalProps) => {
+  addOrEditProposal,
+  editingProposal,
+  setEditingProposal,
+}: RegisterProposalModalProps) => {
   const [name, setName] = useState("");
 
   useEffect(() => {
-    if (editingCandidate) {
-      setName(editingCandidate.name);
+    if (editingProposal) {
+      setName(editingProposal.name);
     }
-  }, [editingCandidate]);
+  }, [editingProposal]);
 
   const onClose = () => {
     setIsOpen(false);
-    setEditingCandidate(undefined);
+    setEditingProposal(undefined);
     setName("");
   };
 
   const onSubmit = async () => {
-    await addOrEditCandidate(name);
+    await addOrEditProposal(name);
     onClose();
   };
 
@@ -52,7 +52,7 @@ export const RegisterCandidateModal = ({
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Candidate Registration Form</ModalHeader>
+        <ModalHeader>Proposal Registration Form</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Box>
@@ -67,7 +67,7 @@ export const RegisterCandidateModal = ({
 
         <ModalFooter gap={3}>
           <Button colorScheme="green" onClick={onSubmit}>
-            {!!editingCandidate ? "Update" : "Register"}
+            {!!editingProposal ? "Update" : "Register"}
           </Button>
           <Button colorScheme="red" mr={3} onClick={onClose}>
             Close

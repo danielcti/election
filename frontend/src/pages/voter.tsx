@@ -1,28 +1,28 @@
 import { Button, Flex, Input, Select, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { CandidatesTable } from "../components/CandidatesTable";
+import { ProposalsTable } from "../components/ProposalsTable";
 import {
   delegateVote,
-  fetchCandidates,
+  fetchProposals,
   getElectionStatus,
   getMyAddress,
   getMyProfile,
   vote,
 } from "../services/api";
 import {
-  Candidate,
   default_address,
   ElectionStatus,
+  Proposal,
   Shareholder,
 } from "../utils/types";
 
 export default function Home() {
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
   const [myProfile, setMyProfile] = useState<Shareholder | undefined>(
     undefined
   );
   const [myAddress, setMyAddress] = useState<string>("");
-  const [selectedCandidate, setSelectedCandidate] = useState<number>(-1);
+  const [selectedProposal, setSelectedProposal] = useState<number>(-1);
   const [electionStatus, setElectionStatus] = useState<ElectionStatus>(
     ElectionStatus.Registration
   );
@@ -30,8 +30,8 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchData() {
-      const candidates = await fetchCandidates();
-      setCandidates(candidates ?? []);
+      const proposals = await fetchProposals();
+      setProposals(proposals ?? []);
       const address = await getMyAddress();
       setMyAddress(address ?? "");
       const status = await getElectionStatus();
@@ -87,13 +87,13 @@ export default function Home() {
           <Text fontSize="xl">Voting time!</Text>
           <Flex gap={4}>
             <Select
-              placeholder="Select candidate"
+              placeholder="Select proposal"
               size="md"
-              onChange={(e) => setSelectedCandidate(parseInt(e.target.value))}
+              onChange={(e) => setSelectedProposal(parseInt(e.target.value))}
             >
-              {candidates?.map((candidate) => (
-                <option key={`option-${candidate.id}`} value={candidate.id}>
-                  {candidate.name}
+              {proposals?.map((proposal) => (
+                <option key={`option-${proposal.id}`} value={proposal.id}>
+                  {proposal.name}
                 </option>
               ))}
             </Select>
@@ -101,7 +101,7 @@ export default function Home() {
               colorScheme="blue"
               size="md"
               onClick={async () => {
-                await vote(myAddress, selectedCandidate);
+                await vote(myAddress, selectedProposal);
                 const profile = await getMyProfile(myAddress);
                 setMyProfile(profile);
               }}
@@ -133,7 +133,7 @@ export default function Home() {
 
     return (
       <Flex flexDir="column" gap={4}>
-        <CandidatesTable candidates={candidates} />
+        <ProposalsTable proposals={proposals} />
         <Text fontSize="3xl">Voting is over!</Text>
       </Flex>
     );

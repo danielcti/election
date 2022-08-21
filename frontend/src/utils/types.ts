@@ -3,7 +3,7 @@ export interface Shareholder {
   name: string;
   voted: boolean;
   delegate: string;
-  vote: number; // id of the candidate
+  vote: number; // id of the proposal
   numberOfShares: number;
 }
 
@@ -20,7 +20,7 @@ export enum ElectionStatus {
   Finished = 2,
 }
 
-export interface Candidate {
+export interface Proposal {
   id: number;
   name: string;
   voteCount: number;

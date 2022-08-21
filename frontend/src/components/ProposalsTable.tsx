@@ -10,28 +10,28 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import { Candidate, ElectionStatus } from "../utils/types";
+import { ElectionStatus, Proposal } from "../utils/types";
 
-interface CandidatesTableProps {
-  candidates: Candidate[];
-  openEditCandidateModal?: (candidate: Candidate) => void;
+interface ProposalsTableProps {
+  proposals: Proposal[];
+  openEditProposalModal?: (proposal: Proposal) => void;
   electionStatus?: ElectionStatus;
-  deleteCandidate?: (id: number) => void;
+  deleteProposal?: (id: number) => void;
   isAdmin?: boolean;
 }
 
-export const CandidatesTable = ({
-  candidates,
-  deleteCandidate,
+export const ProposalsTable = ({
+  proposals,
+  deleteProposal,
   electionStatus,
   isAdmin = false,
-  openEditCandidateModal,
-}: CandidatesTableProps) => {
-  if (candidates.length === 0) {
+  openEditProposalModal,
+}: ProposalsTableProps) => {
+  if (proposals.length === 0) {
     return (
       <Box>
         <Text fontSize="xl" fontWeight="bold" mb={8} pb={4}>
-          No candidates registered
+          No proposals registered
         </Text>
       </Box>
     );
@@ -46,7 +46,7 @@ export const CandidatesTable = ({
         pb={4}
         borderBottom="1px solid #eee"
       >
-        Candidates List
+        Proposals List
       </Text>
       <TableContainer>
         <Table variant="simple">
@@ -61,17 +61,17 @@ export const CandidatesTable = ({
             </Tr>
           </Thead>
           <Tbody>
-            {candidates?.map((candidate) => (
-              <Tr key={`row-${candidate.id}`}>
-                <Td>{candidate.id}</Td>
-                <Td>{candidate.name}</Td>
-                <Td>{candidate.voteCount ?? "x"}</Td>
+            {proposals?.map((proposal) => (
+              <Tr key={`row-${proposal.id}`}>
+                <Td>{proposal.id}</Td>
+                <Td>{proposal.name}</Td>
+                <Td>{proposal.voteCount ?? "x"}</Td>
                 {isAdmin && electionStatus === ElectionStatus.Registration && (
                   <Td>
                     <Button
                       colorScheme="red"
                       onClick={() =>
-                        !!deleteCandidate && deleteCandidate(candidate.id)
+                        !!deleteProposal && deleteProposal(proposal.id)
                       }
                     >
                       Delete
@@ -79,8 +79,8 @@ export const CandidatesTable = ({
                     <Button
                       colorScheme="blue"
                       onClick={() =>
-                        !!openEditCandidateModal &&
-                        openEditCandidateModal(candidate)
+                        !!openEditProposalModal &&
+                        openEditProposalModal(proposal)
                       }
                       ml={3}
                     >

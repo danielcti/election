@@ -1,49 +1,47 @@
 import { Button, Flex, Heading } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { CandidatesTable } from "../components/CandidatesTable";
-import { RegisterCandidateModal } from "../components/RegisterCandidateModal";
+import { ProposalsTable } from "../components/ProposalsTable";
+import { RegisterProposalModal } from "../components/RegisterProposalModal";
 import { RegisterShareholderModal } from "../components/RegisterShareholderModal";
 import { ShareholdersTable } from "../components/ShareholdersTable";
 import {
-  addOrEditCandidate,
+  addOrEditProposal,
   addOrEditShareholder,
-  deleteCandidate,
+  deleteProposal,
   deleteShareholder,
-  fetchCandidates,
+  fetchProposals,
   fetchShareholders,
   getElectionStatus,
   getMyAddress,
 } from "../services/api";
-import { Candidate, ElectionStatus, Shareholder } from "../utils/types";
+import { ElectionStatus, Proposal, Shareholder } from "../utils/types";
 
 export default function Home() {
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
   const [shareholders, setShareholders] = useState<Shareholder[]>([]);
   const [myAddress, setMyAddress] = useState<string>("");
   const [
     isShareholderRegistrationModalOpen,
     setIsShareholderRegistrationModalOpen,
   ] = useState(false);
-  const [
-    isCandidateRegistrationModalOpen,
-    setIsCandidateRegistrationModalOpen,
-  ] = useState(false);
+  const [isProposalRegistrationModalOpen, setIsProposalRegistrationModalOpen] =
+    useState(false);
   const [electionStatus, setElectionStatus] = useState<ElectionStatus>(
     ElectionStatus.Registration
   );
   const [editingShareholder, setEditingShareholder] = useState<
     Shareholder | undefined
   >(undefined);
-  const [editingCandidate, setEditingCandidate] = useState<
-    Candidate | undefined
-  >(undefined);
+  const [editingProposal, setEditingProposal] = useState<Proposal | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     async function fetchData() {
       const newShareholders = await fetchShareholders();
       setShareholders(newShareholders ?? []);
-      const candidates = await fetchCandidates();
-      setCandidates(candidates ?? []);
+      const proposals = await fetchProposals();
+      setProposals(proposals ?? []);
       const address = await getMyAddress();
       setMyAddress(address ?? "");
       const status = await getElectionStatus();
@@ -94,25 +92,25 @@ export default function Home() {
           />
           <Button
             colorScheme="green"
-            onClick={() => setIsCandidateRegistrationModalOpen(true)}
+            onClick={() => setIsProposalRegistrationModalOpen(true)}
           >
-            Register Candidate
+            Register Proposal
           </Button>
-          <RegisterCandidateModal
-            isOpen={isCandidateRegistrationModalOpen}
-            setIsOpen={setIsCandidateRegistrationModalOpen}
-            addOrEditCandidate={async (name: string) => {
-              await addOrEditCandidate(
+          <RegisterProposalModal
+            isOpen={isProposalRegistrationModalOpen}
+            setIsOpen={setIsProposalRegistrationModalOpen}
+            addOrEditProposal={async (name: string) => {
+              await addOrEditProposal(
                 myAddress,
                 name,
-                !!editingCandidate,
-                editingCandidate?.id
+                !!editingProposal,
+                editingProposal?.id
               );
-              const candidates = await fetchCandidates();
-              setCandidates(candidates ?? []);
+              const proposals = await fetchProposals();
+              setProposals(proposals ?? []);
             }}
-            editingCandidate={editingCandidate}
-            setEditingCandidate={setEditingCandidate}
+            editingProposal={editingProposal}
+            setEditingProposal={setEditingProposal}
           />
         </Flex>
       )}
@@ -129,18 +127,18 @@ export default function Home() {
         }}
         electionStatus={electionStatus}
       />
-      <CandidatesTable
-        candidates={candidates}
+      <ProposalsTable
+        proposals={proposals}
         isAdmin
         electionStatus={electionStatus}
-        deleteCandidate={async (id: number) => {
-          await deleteCandidate(id, myAddress);
-          const candidates = await fetchCandidates();
-          setCandidates(candidates ?? []);
+        deleteProposal={async (id: number) => {
+          await deleteProposal(id, myAddress);
+          const proposals = await fetchProposals();
+          setProposals(proposals ?? []);
         }}
-        openEditCandidateModal={(candidate: Candidate) => {
-          setEditingCandidate(candidate);
-          setIsCandidateRegistrationModalOpen(true);
+        openEditProposalModal={(proposal: Proposal) => {
+          setEditingProposal(proposal);
+          setIsProposalRegistrationModalOpen(true);
         }}
       />
     </Flex>

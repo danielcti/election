@@ -2,15 +2,15 @@ import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import Election from "../contracts/Election.json";
 import {
-  Candidate,
   ElectionStatus,
   electionStatusMap,
   EthersError,
+  Proposal,
   Shareholder,
 } from "../utils/types";
 
 declare let window: any;
-const electionAddress = "0xDC11f7E700A4c898AE5CAddB1082cFfa76512aDD";
+const electionAddress = "0x1c85638e118b37167e9298c2268758e058DdfDA0";
 
 export async function fetchShareholders(): Promise<Shareholder[] | undefined> {
   if (typeof window.ethereum === "undefined") {
@@ -47,7 +47,7 @@ export async function fetchShareholders(): Promise<Shareholder[] | undefined> {
   }
 }
 
-export async function fetchCandidates(): Promise<Candidate[] | undefined> {
+export async function fetchProposals(): Promise<Proposal[] | undefined> {
   if (typeof window.ethereum === "undefined") {
     toast.error("Please install MetaMask to vote");
     return;
@@ -56,20 +56,20 @@ export async function fetchCandidates(): Promise<Candidate[] | undefined> {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const contract = new ethers.Contract(electionAddress, Election.abi, provider);
   try {
-    const data = await contract.candidatesCount();
-    const candidatesCount = data.toNumber();
-    const newCandidates: Candidate[] = [];
-    for (let i = 1; i <= candidatesCount; i++) {
-      const candidate = await contract.candidates(i);
-      if (candidate[0].toNumber() !== 0) {
-        newCandidates.push({
-          id: candidate[0].toNumber(),
-          name: candidate[1],
-          voteCount: candidate[2].toNumber(),
+    const data = await contract.proposalsCount();
+    const proposalsCount = data.toNumber();
+    const newProposals: Proposal[] = [];
+    for (let i = 1; i <= proposalsCount; i++) {
+      const proposal = await contract.proposals(i);
+      if (proposal[0].toNumber() !== 0) {
+        newProposals.push({
+          id: proposal[0].toNumber(),
+          name: proposal[1],
+          voteCount: proposal[2].toNumber(),
         });
       }
     }
-    return newCandidates;
+    return newProposals;
   } catch (error) {
     console.log(error);
   }
@@ -120,7 +120,7 @@ export async function getMyAddress(): Promise<string | undefined> {
   return account;
 }
 
-export async function addOrEditCandidate(
+export async function addOrEditProposal(
   myAddress: string,
   name: string,
   isEdit: boolean,
@@ -138,9 +138,9 @@ export async function addOrEditCandidate(
   try {
     let transaction;
     if (isEdit) {
-      transaction = await contract.editCandidate(id, name, { from: myAddress });
+      transaction = await contract.editProposal(id, name, { from: myAddress });
     } else {
-      transaction = await contract.addCandidate(name, {
+      transaction = await contract.addProposal(name, {
         from: myAddress,
       });
     }
@@ -178,7 +178,7 @@ export async function getMyProfile(
   };
 }
 
-export async function vote(myAddress: string, selectedCandidate: number) {
+export async function vote(myAddress: string, selectedProposal: number) {
   if (typeof window.ethereum === "undefined") {
     toast.error("Please install MetaMask to vote");
     return;
@@ -189,7 +189,7 @@ export async function vote(myAddress: string, selectedCandidate: number) {
   const signer = provider.getSigner();
   const contract = new ethers.Contract(electionAddress, Election.abi, signer);
   try {
-    const transation = await contract.vote(selectedCandidate, {
+    const transation = await contract.vote(selectedProposal, {
       from: myAddress,
     });
     await transation.wait();
@@ -198,7 +198,7 @@ export async function vote(myAddress: string, selectedCandidate: number) {
   }
 }
 
-export async function deleteCandidate(id: number, myAddress: string) {
+export async function deleteProposal(id: number, myAddress: string) {
   if (typeof window.ethereum === "undefined") {
     toast.error("Please install MetaMask to vote");
     return;
@@ -209,7 +209,7 @@ export async function deleteCandidate(id: number, myAddress: string) {
   const signer = provider.getSigner();
   const contract = new ethers.Contract(electionAddress, Election.abi, signer);
   try {
-    const transation = await contract.deleteCandidate(id, {
+    const transation = await contract.deleteProposal(id, {
       from: myAddress,
     });
     await transation.wait();
