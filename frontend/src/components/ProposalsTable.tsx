@@ -31,7 +31,7 @@ export const ProposalsTable = ({
     return (
       <Box>
         <Text fontSize="xl" fontWeight="bold" mb={8} pb={4}>
-          No proposals registered
+          Nenhuma proposta registrada.
         </Text>
       </Box>
     );
@@ -46,17 +46,17 @@ export const ProposalsTable = ({
         pb={4}
         borderBottom="1px solid #eee"
       >
-        Proposals List
+        Lista de propostas
       </Text>
       <TableContainer>
         <Table variant="simple">
           <Thead>
             <Tr>
               <Th>ID</Th>
-              <Th>Name</Th>
-              <Th>Votes</Th>
+              <Th>Nome</Th>
+              <Th>Votos</Th>
               {isAdmin && electionStatus === ElectionStatus.Registration && (
-                <Th>Actions</Th>
+                <Th>Ações</Th>
               )}
             </Tr>
           </Thead>
@@ -74,7 +74,7 @@ export const ProposalsTable = ({
                         !!deleteProposal && deleteProposal(proposal.id)
                       }
                     >
-                      Delete
+                      Deletar
                     </Button>
                     <Button
                       colorScheme="blue"
@@ -84,7 +84,7 @@ export const ProposalsTable = ({
                       }
                       ml={3}
                     >
-                      Edit
+                      Editar
                     </Button>
                   </Td>
                 )}

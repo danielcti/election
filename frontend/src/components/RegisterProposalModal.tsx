@@ -52,11 +52,11 @@ export const RegisterProposalModal = ({
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Proposal Registration Form</ModalHeader>
+        <ModalHeader>Formulário de registro de propostas</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Box>
-            <Text>Name</Text>
+            <Text>Nome</Text>
             <Input
               name="name"
               value={name}
@@ -67,10 +67,10 @@ export const RegisterProposalModal = ({
 
         <ModalFooter gap={3}>
           <Button colorScheme="green" onClick={onSubmit}>
-            {!!editingProposal ? "Update" : "Register"}
+            {!!editingProposal ? "Atualizar" : "Registrar"}
           </Button>
           <Button colorScheme="red" mr={3} onClick={onClose}>
-            Close
+            Fechar
           </Button>
         </ModalFooter>
       </ModalContent>

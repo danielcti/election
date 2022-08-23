@@ -1,4 +1,4 @@
-import { Button, Flex, Heading } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { ProposalsTable } from "../components/ProposalsTable";
 import { RegisterProposalModal } from "../components/RegisterProposalModal";
@@ -13,7 +13,10 @@ import {
   fetchShareholders,
   getElectionStatus,
   getMyAddress,
+  getStatus,
+  StartAndEndTime,
 } from "../services/api";
+import { formatTimestampDistanceFromNow } from "../utils/helper";
 import { ElectionStatus, Proposal, Shareholder } from "../utils/types";
 
 export default function Home() {
@@ -35,6 +38,10 @@ export default function Home() {
   const [editingProposal, setEditingProposal] = useState<Proposal | undefined>(
     undefined
   );
+  const [startAndEndTime, setStartAndEndTime] = useState<StartAndEndTime>(
+    {} as StartAndEndTime
+  );
+  const [now, setNow] = useState<number>(Date.now());
 
   useEffect(() => {
     async function fetchData() {
@@ -46,8 +53,21 @@ export default function Home() {
       setMyAddress(address ?? "");
       const status = await getElectionStatus();
       setElectionStatus(status ?? ElectionStatus.Registration);
+      const { startTime, endTime } = await getStatus();
+      setStartAndEndTime({
+        startTime,
+        endTime,
+      });
     }
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 60 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -59,14 +79,24 @@ export default function Home() {
       py={4}
       gap={5}
     >
-      <Heading>Admin</Heading>
+      <Heading>Sistema de votação</Heading>
+      <Box>
+        <Text>
+          Inicio da votação
+          {formatTimestampDistanceFromNow(startAndEndTime.startTime)}
+        </Text>
+        <Text>
+          Fim da votação
+          {formatTimestampDistanceFromNow(startAndEndTime.endTime)}
+        </Text>
+      </Box>
       {electionStatus === ElectionStatus.Registration && (
         <Flex gap={4}>
           <Button
             colorScheme="blue"
             onClick={() => setIsShareholderRegistrationModalOpen(true)}
           >
-            Register Shareholder
+            Registrar acionista
           </Button>
           <RegisterShareholderModal
             isOpen={isShareholderRegistrationModalOpen}
@@ -94,7 +124,7 @@ export default function Home() {
             colorScheme="green"
             onClick={() => setIsProposalRegistrationModalOpen(true)}
           >
-            Register Proposal
+            Registrar proposta
           </Button>
           <RegisterProposalModal
             isOpen={isProposalRegistrationModalOpen}
@@ -141,6 +171,7 @@ export default function Home() {
           setIsProposalRegistrationModalOpen(true);
         }}
       />
+      {/* <ProposalsBarChart proposals={proposals} /> */}
     </Flex>
   );
 }

@@ -29,8 +29,6 @@ contract Election {
     uint64 public startTime;
     uint64 public endTime;
 
-    event votedEvent(uint256 indexed _proposalId);
-
     constructor(
         uint64 _startTime,
         uint64 _endTime,
@@ -167,7 +165,6 @@ contract Election {
         shareholders[msg.sender].voted = true;
         shareholders[msg.sender].vote = _proposalId;
         proposals[_proposalId].votes += shareholders[msg.sender].weight;
-        emit votedEvent(_proposalId);
     }
 
     function delegate(address to) external {

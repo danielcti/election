@@ -1,3 +1,5 @@
+import { formatDistanceToNow } from "date-fns";
+import ptBR from "date-fns/locale/pt-BR";
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import Election from "../contracts/Election.json";
@@ -10,11 +12,11 @@ import {
 } from "../utils/types";
 
 declare let window: any;
-const electionAddress = "0x1c85638e118b37167e9298c2268758e058DdfDA0";
+const electionAddress = "0x5c74c94173F05dA1720953407cbb920F3DF9f887";
 
 export async function fetchShareholders(): Promise<Shareholder[] | undefined> {
   if (typeof window.ethereum === "undefined") {
-    toast.error("Please install MetaMask to vote");
+    toast.error("Por favor instale a Metamask.");
     return;
   }
 
@@ -49,7 +51,7 @@ export async function fetchShareholders(): Promise<Shareholder[] | undefined> {
 
 export async function fetchProposals(): Promise<Proposal[] | undefined> {
   if (typeof window.ethereum === "undefined") {
-    toast.error("Please install MetaMask to vote");
+    toast.error("Por favor instale a Metamask.");
     return;
   }
 
@@ -77,7 +79,7 @@ export async function fetchProposals(): Promise<Proposal[] | undefined> {
 
 export async function getElectionStatus(): Promise<ElectionStatus | undefined> {
   if (typeof window.ethereum === "undefined") {
-    toast.error("Please install MetaMask to vote");
+    toast.error("Por favor instale a Metamask.");
     return;
   }
 
@@ -95,7 +97,7 @@ export async function requestAccount() {
 
 export async function delegateVote(delegateAddress: string, myAddress: string) {
   if (typeof window.ethereum === "undefined") {
-    toast.error("Please install MetaMask to vote");
+    toast.error("Por favor instale a Metamask.");
     return;
   }
 
@@ -109,7 +111,7 @@ export async function delegateVote(delegateAddress: string, myAddress: string) {
     });
     await transation.wait();
   } catch (error) {
-    toast("Unexpected error", { type: "error" });
+    toast("Erro inesperado: ", { type: "error" });
   }
 }
 
@@ -127,7 +129,7 @@ export async function addOrEditProposal(
   id?: number
 ) {
   if (typeof window.ethereum === "undefined") {
-    toast.error("Please install MetaMask to vote");
+    toast.error("Por favor instale a Metamask.");
     return;
   }
 
@@ -148,7 +150,7 @@ export async function addOrEditProposal(
   } catch ({ error }) {
     const typedError = error as EthersError;
     toast(
-      "Unexpected error: " +
+      "Erro inesperado: " +
         typedError?.data?.message?.substr(78)?.replaceAll("'", ""),
       {
         type: "error",
@@ -161,7 +163,7 @@ export async function getMyProfile(
   myAddress: string
 ): Promise<Shareholder | undefined> {
   if (typeof window.ethereum === "undefined") {
-    toast.error("Please install MetaMask to vote");
+    toast.error("Por favor instale a Metamask.");
     return;
   }
 
@@ -180,7 +182,7 @@ export async function getMyProfile(
 
 export async function vote(myAddress: string, selectedProposal: number) {
   if (typeof window.ethereum === "undefined") {
-    toast.error("Please install MetaMask to vote");
+    toast.error("Por favor instale a Metamask.");
     return;
   }
 
@@ -194,13 +196,13 @@ export async function vote(myAddress: string, selectedProposal: number) {
     });
     await transation.wait();
   } catch (error) {
-    toast("Unexpected error", { type: "error" });
+    toast("Erro inesperado: ", { type: "error" });
   }
 }
 
 export async function deleteProposal(id: number, myAddress: string) {
   if (typeof window.ethereum === "undefined") {
-    toast.error("Please install MetaMask to vote");
+    toast.error("Por favor instale a Metamask.");
     return;
   }
 
@@ -216,7 +218,7 @@ export async function deleteProposal(id: number, myAddress: string) {
   } catch ({ error }) {
     const typedError = error as EthersError;
     toast(
-      "Unexpected error: " +
+      "Erro inesperado: : " +
         typedError?.data?.message?.substr(78)?.replaceAll("'", ""),
       {
         type: "error",
@@ -233,7 +235,7 @@ export async function addOrEditShareholder(
   myAddress: string
 ) {
   if (typeof window.ethereum === "undefined") {
-    toast.error("Please install MetaMask to vote");
+    toast.error("Por favor instale a Metamask.");
     return;
   }
 
@@ -266,7 +268,7 @@ export async function addOrEditShareholder(
   } catch ({ error }) {
     const typedError = error as EthersError;
     toast(
-      "Unexpected error: " +
+      "Erro inesperado: : " +
         typedError?.data?.message?.substr(78)?.replaceAll("'", ""),
       {
         type: "error",
@@ -277,7 +279,7 @@ export async function addOrEditShareholder(
 
 export async function deleteShareholder(address: string, myAddress: string) {
   if (typeof window.ethereum === "undefined") {
-    toast.error("Please install MetaMask to vote");
+    toast.error("Por favor instale a Metamask.");
     return;
   }
 
@@ -293,7 +295,7 @@ export async function deleteShareholder(address: string, myAddress: string) {
   } catch ({ error }) {
     const typedError = error as EthersError;
     toast(
-      "Unexpected error: " +
+      "Erro inesperado: : " +
         typedError?.data?.message?.substr(78)?.replaceAll("'", ""),
       {
         type: "error",
@@ -301,3 +303,50 @@ export async function deleteShareholder(address: string, myAddress: string) {
     );
   }
 }
+
+export interface StartAndEndTime {
+  startTime: number;
+  endTime: number;
+}
+
+export const getStatus = async (): Promise<StartAndEndTime> => {
+  if (typeof window.ethereum === "undefined") {
+    toast.error("Por favor instale a Metamask.");
+    return {
+      startTime: 0,
+      endTime: 0,
+    };
+  }
+
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const contract = new ethers.Contract(electionAddress, Election.abi, provider);
+
+  const startTime = await contract.startTime();
+  // const formattedStartTime = format(
+  //   new Date(startTime.toNumber() * 1000),
+  //   "dd/MM/yyyy HH:mm:ss"
+  // );
+  const endTime = await contract.endTime();
+  // const formattedEndTime = format(
+  //   new Date(endTime.toNumber() * 1000),
+  //   "dd/MM/yyyy HH:mm:ss"
+  // );
+
+  const formattedStartTime = `Início da votação ${formatDistanceToNow(
+    startTime.toNumber() * 1000,
+    {
+      addSuffix: true,
+      locale: ptBR,
+    }
+  )}`;
+
+  const formattedEndTime = `Fim da votação ${formatDistanceToNow(
+    endTime.toNumber() * 1000,
+    {
+      addSuffix: true,
+      locale: ptBR,
+    }
+  )}`;
+
+  return { startTime: startTime.toNumber(), endTime: endTime.toNumber() };
+};

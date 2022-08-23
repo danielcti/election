@@ -31,7 +31,7 @@ export const ShareholdersTable = ({
     return (
       <Box>
         <Text fontSize="xl" fontWeight="bold" mb={8} pb={4}>
-          No shareholders registered
+          Nenhum acionista registrado.
         </Text>
       </Box>
     );
@@ -46,32 +46,30 @@ export const ShareholdersTable = ({
         pb={4}
         borderBottom="1px solid #eee"
       >
-        Shareholders List
+        Lista de acionistas
       </Text>
       <TableContainer whiteSpace="normal">
         <Table variant="simple">
           <Thead>
             <Tr>
-              <Th>Address</Th>
-              <Th>Name</Th>
+              <Th>Endereço</Th>
+              <Th>Nome</Th>
               <Th whiteSpace="nowrap">
-                Shares
-                <Tooltip label="Shareholder's number of shares." fontSize="md">
+                Ações
+                <Tooltip label="Número de ações do acionista." fontSize="md">
                   <QuestionIcon />
                 </Tooltip>
               </Th>
               <Th whiteSpace="nowrap">
-                Voted/Delegated
+                Votou/Delegou
                 <Tooltip
-                  label="It indicates if the shareholder voted/not voted or delegated to another shareholder."
+                  label="Isso indica se o acionista votou ou não e se delegou seu voto para outro acionista."
                   fontSize="md"
                 >
                   <QuestionIcon />
                 </Tooltip>
               </Th>
-              {electionStatus === ElectionStatus.Registration && (
-                <Th>Actions</Th>
-              )}
+              {electionStatus === ElectionStatus.Registration && <Th>Ações</Th>}
             </Tr>
           </Thead>
           <Tbody>
@@ -82,10 +80,10 @@ export const ShareholdersTable = ({
                 <Td>{shareholder.numberOfShares}</Td>
                 <Td>
                   {shareholder.delegate !== default_address
-                    ? `Delegated vote to: ${shareholder.delegate}`
+                    ? `Delegou voto para: ${shareholder.delegate}`
                     : shareholder.voted
-                    ? "Voted"
-                    : "Did not voted"}
+                    ? "Votou"
+                    : "Não votou"}
                 </Td>
                 {electionStatus === ElectionStatus.Registration && (
                   <Td>
@@ -94,7 +92,7 @@ export const ShareholdersTable = ({
                       size="sm"
                       onClick={() => deleteShareholder(shareholder.id)}
                     >
-                      Delete
+                      Deletar
                     </Button>
                     <Button
                       colorScheme="green"
@@ -102,7 +100,7 @@ export const ShareholdersTable = ({
                       ml={3}
                       onClick={() => openEditShareholderModal(shareholder)}
                     >
-                      Edit
+                      Editar
                     </Button>
                   </Td>
                 )}

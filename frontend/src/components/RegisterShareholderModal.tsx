@@ -66,11 +66,11 @@ export const RegisterShareholderModal = ({
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Shareholder Registration Form</ModalHeader>
+        <ModalHeader>Formulário de registro de acionistas</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Box>
-            <Text>Name</Text>
+            <Text>Nome</Text>
             <Input
               name="name"
               value={name}
@@ -78,7 +78,7 @@ export const RegisterShareholderModal = ({
             />
           </Box>
           <Box>
-            <Text>Metamask Address</Text>
+            <Text>Endereço da Metamask</Text>
             <Input
               name="metaMaskAddress"
               value={address}
@@ -87,7 +87,7 @@ export const RegisterShareholderModal = ({
             />
           </Box>
           <Box>
-            <Text>Number of shares</Text>
+            <Text>Número de ações</Text>
             <Input
               name="numberOfShares"
               value={numberOfShares}
@@ -99,10 +99,10 @@ export const RegisterShareholderModal = ({
 
         <ModalFooter gap={3}>
           <Button colorScheme="green" onClick={onSubmit}>
-            Register
+            {!!editingShareholder ? "Atualizar" : "Registrar"}
           </Button>
           <Button colorScheme="red" mr={3} onClick={onClose}>
-            Close
+            Fechar
           </Button>
         </ModalFooter>
       </ModalContent>

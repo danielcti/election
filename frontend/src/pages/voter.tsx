@@ -1,4 +1,14 @@
-import { Button, Flex, Input, Select, Text } from "@chakra-ui/react";
+import { QuestionIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Input,
+  Select,
+  Text,
+  Tooltip,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { ProposalsTable } from "../components/ProposalsTable";
 import {
@@ -7,8 +17,11 @@ import {
   getElectionStatus,
   getMyAddress,
   getMyProfile,
+  getStatus,
+  StartAndEndTime,
   vote,
 } from "../services/api";
+import { formatTimestampDistanceFromNow } from "../utils/helper";
 import {
   default_address,
   ElectionStatus,
@@ -27,6 +40,10 @@ export default function Home() {
     ElectionStatus.Registration
   );
   const [delegateAddress, setDelegateAddress] = useState<string>("");
+  const [startAndEndTime, setStartAndEndTime] = useState<StartAndEndTime>(
+    {} as StartAndEndTime
+  );
+  const [now, setNow] = useState<number>(Date.now());
 
   useEffect(() => {
     async function fetchData() {
@@ -36,8 +53,21 @@ export default function Home() {
       setMyAddress(address ?? "");
       const status = await getElectionStatus();
       setElectionStatus(status ?? ElectionStatus.Registration);
+      const { startTime, endTime } = await getStatus();
+      setStartAndEndTime({
+        startTime,
+        endTime,
+      });
     }
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 60 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -54,22 +84,19 @@ export default function Home() {
     if (electionStatus === ElectionStatus.Registration) {
       if (!!myProfile?.name) {
         return (
-          <Text fontSize="3xl">The voting time have not started yet.</Text>
+          <Text fontSize="3xl">O período de votação ainda não começou.</Text>
         );
       }
       return (
         <Text fontSize="3xl">
-          You are not elegible to vote, please request it to the voting admin.
+          Você não está elegível para votar. Por favor solicite a um
+          administrador.
         </Text>
       );
     }
 
     if (!myProfile?.name) {
-      return (
-        <Text fontSize="3xl">
-          You are not elegible to vote, please request it to the voting admin.
-        </Text>
-      );
+      return <Text fontSize="3xl">Você não está elegível para votar.</Text>;
     }
 
     if (electionStatus === ElectionStatus.Voting) {
@@ -77,17 +104,16 @@ export default function Home() {
         return (
           <Text fontSize="3xl">
             {myProfile?.delegate === default_address
-              ? "You have already voted. Please wait for the end of the voting to check for the winner."
-              : "You have already delegated your vote. Please wait for the end of the voting to check for the winner."}
+              ? "Você já votou. Por favor aguarde o fim da votação para ver os resultados."
+              : "Você já delegou seu voto. Por favor aguarde o fim da votação para ver os resultados."}
           </Text>
         );
       }
       return (
         <Flex flexDir="column" gap={4}>
-          <Text fontSize="xl">Voting time!</Text>
           <Flex gap={4}>
             <Select
-              placeholder="Select proposal"
+              placeholder="Selecione a proposta"
               size="md"
               onChange={(e) => setSelectedProposal(parseInt(e.target.value))}
             >
@@ -106,15 +132,21 @@ export default function Home() {
                 setMyProfile(profile);
               }}
             >
-              Vote
+              Votar
             </Button>
           </Flex>
           <Flex gap={4}>
             <Input
-              placeholder="Delegate account"
+              placeholder="Endereço do delegado"
               size="md"
               onChange={(e) => setDelegateAddress(e.target.value)}
             />
+            <Tooltip
+              label="Endereço do acionista que você deseja delegar seu voto."
+              fontSize="md"
+            >
+              <QuestionIcon />
+            </Tooltip>
             <Button
               colorScheme="blue"
               size="md"
@@ -124,7 +156,7 @@ export default function Home() {
                 setMyProfile(profile);
               }}
             >
-              Delegate
+              Delegar
             </Button>
           </Flex>
         </Flex>
@@ -134,7 +166,8 @@ export default function Home() {
     return (
       <Flex flexDir="column" gap={4}>
         <ProposalsTable proposals={proposals} />
-        <Text fontSize="3xl">Voting is over!</Text>
+        {/* <ProposalsBarChart proposals={proposals} /> */}
+        <Text fontSize="3xl">A votação terminou!</Text>
       </Flex>
     );
   };
@@ -149,6 +182,17 @@ export default function Home() {
       height="100vh"
       gap={5}
     >
+      <Heading>Sistema de votação</Heading>
+      <Box>
+        <Text>
+          Inicio da votação
+          {formatTimestampDistanceFromNow(startAndEndTime.startTime)}
+        </Text>
+        <Text>
+          Fim da votação
+          {formatTimestampDistanceFromNow(startAndEndTime.endTime)}
+        </Text>
+      </Box>
       {renderBody()}
     </Flex>
   );
