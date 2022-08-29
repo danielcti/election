@@ -43,24 +43,27 @@ contract Election {
     }
 
     modifier registrationTime() {
-        require(block.timestamp <= startTime, "Registration time is over");
+        require(block.timestamp <= startTime, "Periodo de registro acabou.");
         _;
     }
 
     modifier votingTime() {
-        require(block.timestamp <= endTime, "Voting time is over");
+        require(block.timestamp <= endTime, "Periodo de votacao acabou.");
         _;
     }
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can perform this action");
+        require(
+            msg.sender == owner,
+            "Apenas o administrador pode perfomar esta acao."
+        );
         _;
     }
 
     modifier onlyShareholder() {
         require(
             shareholders[msg.sender].id != address(0),
-            "Only shareholder can perform this action"
+            "Apenas acionistas podem performar esta acao."
         );
         _;
     }
@@ -93,28 +96,26 @@ contract Election {
         onlyOwner
         registrationTime
     {
-        require(_id > 0 && _id <= proposalsCount, "Invalid proposal id");
+        require(proposals[_id].id == _id, "Proposta nao encontrada.");
         proposals[_id].name = _name;
     }
 
-    function deleteProposal(uint256 id) public onlyOwner registrationTime {
-        require(proposals[id].id == id, "Proposal not found");
-        proposals[id].id = 0;
-        proposals[id].name = "";
-        proposals[id].votes = 0;
+    function deleteProposal(uint256 _id) public onlyOwner registrationTime {
+        require(proposals[_id].id == _id, "Proposta nao encontrada.");
+        delete proposals[_id];
     }
 
     function addShareholder(
         string memory _name,
-        address id,
+        address _id,
         uint256 _numberOfShares
     ) public registrationTime onlyOwner {
         require(
-            shareholders[id].id == address(0),
-            "You are already registered"
+            shareholders[_id].id == address(0),
+            "Acionista ja esta registrado."
         );
         Shareholder memory shareholder = Shareholder(
-            id,
+            _id,
             _name,
             false,
             address(0),
@@ -122,29 +123,35 @@ contract Election {
             _numberOfShares,
             _numberOfShares
         );
-        shareholders[id] = shareholder;
-        shareholdersAddresses.push(id);
+        shareholders[_id] = shareholder;
+        shareholdersAddresses.push(_id);
     }
 
     function editShareholder(
         string memory _name,
-        address id,
+        address _id,
         uint256 _numberOfShares
     ) public registrationTime onlyOwner {
-        require(shareholders[id].id != address(0), "You are not registered");
-        shareholders[id].name = _name;
-        shareholders[id].numberOfShares = _numberOfShares;
-        shareholders[id].weight = _numberOfShares;
+        require(
+            shareholders[_id].id != address(0),
+            "Acionista nao esta registrado."
+        );
+        shareholders[_id].name = _name;
+        shareholders[_id].numberOfShares = _numberOfShares;
+        shareholders[_id].weight = _numberOfShares;
     }
 
-    function deleteShareholder(address id) public registrationTime onlyOwner {
-        require(shareholders[id].id != address(0), "You are not registered");
-        delete shareholders[id];
+    function deleteShareholder(address _id) public registrationTime onlyOwner {
+        require(
+            shareholders[_id].id != address(0),
+            "Acionista nao esta registrado."
+        );
+        delete shareholders[_id];
         address[] memory newShareholdersAddresses = new address[](
             shareholdersAddresses.length - 1
         );
         for (uint256 i = 0; i < shareholdersAddresses.length; i++) {
-            if (shareholdersAddresses[i] != id) {
+            if (shareholdersAddresses[i] != _id) {
                 newShareholdersAddresses[i] = shareholdersAddresses[i];
             }
         }
@@ -154,12 +161,12 @@ contract Election {
     function vote(uint256 _proposalId) public votingTime onlyShareholder {
         require(
             shareholders[msg.sender].numberOfShares != 0,
-            "You have no shares"
+            "Acionista nao possui acoes."
         );
-        require(!shareholders[msg.sender].voted, "You already voted");
+        require(!shareholders[msg.sender].voted, "Acionista ja votou.");
         require(
-            _proposalId > 0 && _proposalId <= proposalsCount,
-            "_proposalId should be bigger than 0 and less than proposalsCount"
+            proposals[_proposalId].id == _proposalId,
+            "Proposta nao encontrada."
         );
 
         shareholders[msg.sender].voted = true;
@@ -167,24 +174,24 @@ contract Election {
         proposals[_proposalId].votes += shareholders[msg.sender].weight;
     }
 
-    function delegate(address to) external {
+    function delegate(address _to) public votingTime onlyShareholder {
         Shareholder storage sender = shareholders[msg.sender];
-        require(sender.numberOfShares != 0, "You have no right to vote");
-        require(!sender.voted, "You already voted.");
+        require(sender.numberOfShares != 0, "Acionista nao possui acoes.");
+        require(!sender.voted, "Acionista ja votou.");
 
-        require(to != msg.sender, "Self-delegation is disallowed.");
+        require(_to != msg.sender, "Nao pode delegar para si mesmo.");
 
-        while (shareholders[to].delegate != address(0)) {
-            to = shareholders[to].delegate;
-            require(to != msg.sender, "Found loop in delegation.");
+        while (shareholders[_to].delegate != address(0)) {
+            _to = shareholders[_to].delegate;
+            require(_to != msg.sender, "Foi encontrado um loop de delegacao.");
         }
 
-        Shareholder storage delegate_ = shareholders[to];
+        Shareholder storage delegate_ = shareholders[_to];
 
         require(delegate_.weight >= 1);
 
         sender.voted = true;
-        sender.delegate = to;
+        sender.delegate = _to;
 
         if (delegate_.voted) {
             proposals[delegate_.vote].votes += sender.weight;

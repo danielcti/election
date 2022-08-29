@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 
-const proposals = ["Proposal 1", "Proposal 2"];
+const proposals = ["Proposta 1", "Proposta 2"];
 
 async function main() {
   const NOW = new Date();

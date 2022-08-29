@@ -12,7 +12,7 @@ import {
 } from "../utils/types";
 
 declare let window: any;
-const electionAddress = "0x5c74c94173F05dA1720953407cbb920F3DF9f887";
+const electionAddress = "0xD5ac451B0c50B9476107823Af206eD814a2e2580";
 
 export async function fetchShareholders(): Promise<Shareholder[] | undefined> {
   if (typeof window.ethereum === "undefined") {
